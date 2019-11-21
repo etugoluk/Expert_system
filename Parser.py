@@ -1,8 +1,8 @@
 import re
 
-RULE_REG = re.compile(r"^([A-Z\s\(\)\+\^\|\!]+)(<?=>)([A-Z\s\(\)\+\^\|\!]+)(?:#.*)?$")
-OUTPUT_REG = re.compile(r"^=\w+\s*(#.*)?$")
-QUERY_REG = re.compile(r"^\?\w+\s*(#.*)?$")
+RULE_REG = re.compile(r"^([A-Z\(\)\+\^\|\!]+)(<?=>)([A-Z\(\)\+\^\|\!]+)$")
+OUTPUT_REG = re.compile(r"^=[A-Z]*$")
+QUERY_REG = re.compile(r"^\?[A-Z]+$")
 TOKEN_REG = re.compile(r"!?\S")
 
 class ParserError(Exception):
@@ -58,7 +58,6 @@ def parse_rule(line, facts):
 	match = re.findall(RULE_REG, line)
 	if (len(match) == 0):
 		raise ParserError('Incorrect rule')
-	print (match)
 
 	rule = {}
 	rule['lhs'], rule['sign'], rule['rhs'] = match[0]
@@ -66,11 +65,10 @@ def parse_rule(line, facts):
 		is_rule_side_valid(rule['rhs']) == False:
 		raise ParserError('Incorrect rule')
 	rule['lhs_value'], rule['rhs_value'] = -1, -1
-	print (rule)
 
 	for ch in rule['lhs']:
-		if (ch >= 'A') and (ch <= 'Z') and ch not in facts:
-			facts[ch] = 0
+		if (ch >= 'A') and (ch <= 'Z'):
+			facts[ch] = -1
 
 	for ch in rule['rhs']:
 		if (ch >= 'A') and (ch <= 'Z'):
@@ -103,7 +101,7 @@ def parse_file(file):
 		for i, line in enumerate(file):
 			line = re.sub('#.*', '', line)
 			line = re.sub('\\s*', '', line)
-			if len(line) < 2:
+			if not line:
 				continue
 			elif len(RULE_REG.findall(line)) > 0:
 				if output_flag:
