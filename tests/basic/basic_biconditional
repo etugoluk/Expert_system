@@ -7,7 +7,7 @@ A <=> B
 # Result should be
 # A:True
 
-=A
-?B
+#=A
+#?B
 # Result should be
 # B:True

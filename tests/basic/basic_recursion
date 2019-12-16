@@ -3,7 +3,7 @@
 A => B
 B => A
 
-=A
+=C
 ?B
 # Result should be
 # B:True

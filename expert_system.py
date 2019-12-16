@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import argparse
 import Parser
 
@@ -24,13 +26,13 @@ import Parser
 # 	return True
 
 
-def evaluate(x1, x2, op):
-	if (x1 == -1 or x2 == -1):
-		if (op == '|' and (x1 == 1 or x2 == 1)):
-			return 1
-		if (op == '+' and (x1 == 0 or x2 == 0)):
-			return 0
-		return -1
+def calculate(x1, x2, op):
+	if (x1 == None or x2 == None):
+		if (op == '|' and (x1 == True or x2 == True)):
+			return True
+		if (op == '+' and (x1 == False or x2 == False)):
+			return False
+		return None
 
 	if op == '+':
 		res = x1 & x2
@@ -59,7 +61,7 @@ def to_rpn(tokens):
 			out_queue.append(token)
 		elif is_op(token):
 			for op in list(op_stack[::-1]):
-				if get_priority(op_stack[-1]) > get_priority(token):
+				if op_stack[-1] != '(' and get_priority(op_stack[-1]) > get_priority(token):
 					out_queue.append(op_stack[-1])
 					del op_stack[-1]
 				else:
@@ -81,8 +83,8 @@ def to_rpn(tokens):
 def get_val(key):
 	if key[0] == '!':
 		val = facts[key[1]]
-		if val != -1:
-			val ^= 1
+		if val != None:
+			val ^= True
 	else:
 		val = facts[key]
 	return val
@@ -99,7 +101,7 @@ def compute_lhs(rule):
 		if is_op(elem):
 			x1 = operands.pop()
 			x2 = operands.pop()
-			result = evaluate(x1, x2, elem)
+			result = calculate(x1, x2, elem)
 			operands.append(result)
 		else:
 			operands.append(get_val(elem))
@@ -121,6 +123,7 @@ def compute_fact_in_rhs(fact, rule, rule_value, facts):
 	else:
 		x1, op, x2 = tokens
 
+		#x1 should be our search fact
 		if fact in x2:
 			x1, x2 = x2, x1
 
@@ -132,31 +135,26 @@ def compute_fact_in_rhs(fact, rule, rule_value, facts):
 		x2_value = get_val(x2)
 
 		if op == '+':
-			if rule_value == 0 and x2_value == 1:
-				facts[fact] = 0
-			elif rule_value == 1 and x2_value == 1:
-				facts[fact] = 1
-			elif rule_value == 1 and x2_value == -1:
-				facts[fact] = 1
-				facts[x2_fact] = 1
+			if x2_value == True:
+				facts[fact] = rule_value
+			elif rule_value == True and x2_value == None:
+				facts[fact] = True
+				facts[x2_fact] = True
 		elif op == '|':
-			if rule_value == 0 and x2 == 0:
-				facts[fact] = 0
-			elif rule_value == 1 and x2 == 0:
-				facts[fact] = 1
-			elif rule_value == 0 and x2_value == -1:
-				facts[fact] = 0
-				facts[x2_fact] = 0
+			if x2_value == False:
+				facts[fact] = rule_value
+			elif rule_value == False and x2_value == None:
+				facts[fact] = False
+				facts[x2_fact] = False
 		elif op == '^':
-			if rule_value == x2:
-				facts[fact] = 0
+			if rule_value == x2_value:
+				facts[fact] = False
 			else:
-				facts[fact] = 1
+				facts[fact] = True
 
-		if x1[0] == '!':
-			facts[fact] = get_val(x1)
-		if x2[0] == '!':
-			facts[x2_fact] = get_val(x2)
+		#check if ! before fact
+		facts[fact] = get_val(x1)
+		facts[x2_fact] = get_val(x2)
 
 def get_fact_rules(fact, rules):
 	fact_rules = []
@@ -170,7 +168,7 @@ def compute_fact(ch, stack):
 	if verbose:
 		print ("Let's find out what %c is." %ch)
 	#check if symbol is known already
-	if facts[ch] != -1:
+	if facts[ch] != None:
 		return
 
 	#check for recursive
@@ -180,55 +178,60 @@ def compute_fact(ch, stack):
 		return
 	stack.insert(0, ch)
 
+	undefined_ch_flag = 0
+
 	#find all rhs in rules with symbol
 	fact_rules = get_fact_rules(ch, rules_list)
 	for f_rule in fact_rules:
 		if verbose:
-			print ('Let\'s take a look on rule: %s%s%s.' %(f_rule['lhs'], f_rule['sign'], f_rule['rhs']))
+			print ('Look at the rule: %s%s%s.' %(f_rule['lhs'], f_rule['sign'], f_rule['rhs']))
 
 		lhs = 'lhs' if ch in f_rule['rhs'] else 'rhs' #TODO: process case when variable in two sides
 		rhs = 'rhs' if ch in f_rule['rhs'] else 'lhs'
 
-		for c in f_rule[lhs]:
-			if (c >= 'A') and (c <= 'Z'):
-				compute_fact(c, stack)
-				if verbose:
-					print ('%s is %d' %(c, facts[c]))
+		if f_rule[lhs + '_value'] == None:
+			for c in f_rule[lhs]:
+				if (c >= 'A') and (c <= 'Z'):
+					compute_fact(c, stack)
+					if verbose:
+						print ('%s is %d' %(c, facts[c]))
 
-		lhs_value = compute_lhs(f_rule[lhs])
-		if lhs_value == -1:
+			f_rule[lhs + '_value'] = compute_lhs(f_rule[lhs])
+
+		if f_rule[lhs + '_value'] == None:
 			if verbose:
 				print ('Can\'t make decision about condition side. Skipping rule...')
 			continue
 		if verbose:
-			print ('So condition side %s is equal %d.' %(f_rule[lhs], lhs_value))
+			print ('So condition side %s is equal %d.' %(f_rule[lhs], f_rule[lhs + '_value']))
 
-		# rules_list[lhs_value] = lhs_value
-		f_rule[lhs_value] = lhs_value
+		if f_rule[rhs + '_value'] == None:
+			if f_rule['sign'] == '<=>':
+				f_rule[rhs + '_value'] = f_rule[lhs + '_value']
+			elif f_rule['sign'] == '=>' and f_rule[lhs + '_value'] == True:
+				f_rule[rhs + '_value'] = True
 
-		if f_rule['sign'] == '<=>':
-			# rules_list['rhs_value'] = lhs_value
-			f_rule['rhs_value'] = lhs_value
-		elif f_rule['sign'] == '=>' and lhs_value == 1:
-			# rules_list['rhs_value'] = lhs_value
-			f_rule['rhs_value'] = 1
-
-		if f_rule['rhs_value'] == -1: #invalid rule
+		if f_rule[rhs + '_value'] == None: #invalid rule
 			if verbose:
 				print ('Can\'t make decision about conlusion side. Skipping rule...')
 			continue
 
 		if verbose:
-			print ('So conclusion side %s is equal %d.' %(f_rule[rhs], f_rule['rhs_value']))
+			print ('So conclusion side %s is equal %d.' %(f_rule[rhs], f_rule[rhs + '_value']))
 
-		compute_fact_in_rhs(ch, f_rule[rhs], f_rule['rhs_value'], facts)
+		compute_fact_in_rhs(ch, f_rule[rhs], f_rule[rhs + '_value'], facts)
 
-		if facts[ch] != -1:
+		if facts[ch] != None:
 			return
+		else:
+			undefined_ch_flag = 1
+
+	if undefined_ch_flag == 1:
+		return
 
 	if verbose:
 		print ("No appropriate rules for fact %c. Setting it to False by default." %ch)
-	facts[ch] = 0
+	facts[ch] = False
 
 
 if __name__ == '__main__':
@@ -245,9 +248,7 @@ if __name__ == '__main__':
 	for ch in queries:
 		stack = []
 		compute_fact(ch, stack)
-		if facts[ch] == 1:
-			print ("%c is True" %ch)
-		elif facts[ch] == 0:
-			print ("%c is False" %ch)
+		if facts[ch] != None:
+			print ("%c is %s" %(ch, facts[ch]))
 		else:
 			print ("%c is undetermined" %ch)

@@ -4,22 +4,22 @@ B + C => A
 D ^ E => B
 B     => C
 
-=
-?A
+#=
+#?A
 # Result should be
 # A:False
 
-=D
-?A
-# Result should be
-# A:True
-
-=E
-?A
+#=D
+#?A
 # Result should be
 # A:True
 
 =DE
 ?A
+# Result should be
+# A:True
+
+#=DE
+#?A
 # Result should be
 # A:False

@@ -8,17 +8,17 @@ C => A
 # Result should be
 # A:False
 
-=B
-?A
+#=B
+#?A
 # Result should be
 # A:True
 
-=C
-?A
+#=C
+#?A
 # Result should be
 # A:True
 
-=BC
-?A
+#=R
+#?A
 # Result should be
 # A:True

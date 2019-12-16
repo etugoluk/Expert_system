@@ -64,22 +64,22 @@ def parse_rule(line, facts):
 	if is_rule_side_valid(rule['lhs']) == False or \
 		is_rule_side_valid(rule['rhs']) == False:
 		raise ParserError('Incorrect rule')
-	rule['lhs_value'], rule['rhs_value'] = -1, -1
+	rule['lhs_value'], rule['rhs_value'] = None, None
 
 	for ch in rule['lhs']:
 		if (ch >= 'A') and (ch <= 'Z'):
-			facts[ch] = -1
+			facts[ch] = None
 
 	for ch in rule['rhs']:
 		if (ch >= 'A') and (ch <= 'Z'):
-			facts[ch] = -1
+			facts[ch] = None
 
 	return rule
 
 def parse_output(line, facts):
 	for i in range(1, len(line)):
 		ch = line[i]
-		facts[ch] = 1
+		facts[ch] = True
 
 def parse_query(line, facts):
 	query_list = []

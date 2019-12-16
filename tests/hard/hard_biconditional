@@ -1,8 +1,7 @@
 # Hard biconditional
 
 A + B <=> C | D
-
-=D
+=AB
 ?ABC
 # Result should be
 # A:True
