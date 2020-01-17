@@ -1,8 +1,9 @@
 # Hard Not
 
-C => !D
+A <=> !B + !C
 
-=C
-?D
-# Result should be
-# D:False
+=A
+?BC
+# Expected answer:
+# B:False
+# C:False

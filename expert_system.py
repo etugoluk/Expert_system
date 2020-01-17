@@ -3,28 +3,9 @@
 import argparse
 import Parser
 
-# Symbols dictionary values:
-# 1 symbol=True
-# 0 symbol=False
-#-1 symbol=Undefined
-
-# def check_rule(rule):
-# 	lhs_value = compute_lhs(rule['lhs'])
-# 	rhs_value = compute_lhs(rule['rhs'])
-
-# 	if lhs_value == True and rhs_value == False:
-# 		return False
-# 	if lhs_value == False and rhs_value == True and rule['sign'] == '<=>':
-# 		return False
-
-# 	return True
-
-# def check(fact_rules):
-# 	for rule in fact_rules:
-# 		if (check_rule(rule) == False):
-# 			return False
-# 	return True
-
+class LogicalError(Exception):
+	def __init__(self, info):
+		super(LogicalError, self).__init__("LogicalError: " + info + '.')
 
 def calculate(x1, x2, op):
 	if (x1 == None or x2 == None):
@@ -109,6 +90,8 @@ def compute_lhs(rule):
 	return result
 
 def compute_fact_in_rhs(fact, rule, rule_value, facts):
+	prev_fact = facts[fact]
+
 	tokens = Parser.tokenize(rule)
 	len_tokens = len(tokens)
 
@@ -133,28 +116,36 @@ def compute_fact_in_rhs(fact, rule, rule_value, facts):
 			x2_fact = x2
 		compute_fact(x2_fact, stack)
 		x2_value = get_val(x2)
-
 		if op == '+':
 			if x2_value == True:
 				facts[fact] = rule_value
+				facts[fact] = get_val(x1)
 			elif rule_value == True and x2_value == None:
 				facts[fact] = True
 				facts[x2_fact] = True
+				facts[fact] = get_val(x1)
+				facts[x2_fact] = get_val(x2)
 		elif op == '|':
 			if x2_value == False:
 				facts[fact] = rule_value
+				facts[fact] = get_val(x1)
 			elif rule_value == False and x2_value == None:
 				facts[fact] = False
 				facts[x2_fact] = False
+				facts[fact] = get_val(x1)
+				facts[x2_fact] = get_val(x2)
 		elif op == '^':
 			if rule_value == x2_value:
 				facts[fact] = False
+				facts[fact] = get_val(x1)
 			else:
 				facts[fact] = True
+				facts[fact] = get_val(x1)
 
-		#check if ! before fact
-		facts[fact] = get_val(x1)
-		facts[x2_fact] = get_val(x2)
+	if prev_fact != None and prev_fact != facts[fact]:
+		return False
+
+	return True
 
 def get_fact_rules(fact, rules):
 	fact_rules = []
@@ -219,19 +210,24 @@ def compute_fact(ch, stack):
 		if verbose:
 			print ('So conclusion side %s is equal %d.' %(f_rule[rhs], f_rule[rhs + '_value']))
 
-		compute_fact_in_rhs(ch, f_rule[rhs], f_rule[rhs + '_value'], facts)
+		if compute_fact_in_rhs(ch, f_rule[rhs], f_rule[rhs + '_value'], facts) == False:
+			raise LogicalError('Contradiction in rules for %c' %ch)
 
-		if facts[ch] != None:
-			return
-		else:
+		# if facts[ch] != None:
+		# 	return
+		# else:
+		if facts[ch] == None:
 			undefined_ch_flag = 1
+		else:
+			undefined_ch_flag = 0
 
 	if undefined_ch_flag == 1:
 		return
 
-	if verbose:
-		print ("No appropriate rules for fact %c. Setting it to False by default." %ch)
-	facts[ch] = False
+	if facts[ch] == None:
+		if verbose:
+			print ("No appropriate rules for fact %c. Setting it to False by default." %ch)
+		facts[ch] = False
 
 
 if __name__ == '__main__':
@@ -245,10 +241,14 @@ if __name__ == '__main__':
 	facts, rules_list, queries = Parser.parse_file(file)
 	file.close()
 
-	for ch in queries:
-		stack = []
-		compute_fact(ch, stack)
-		if facts[ch] != None:
-			print ("%c is %s" %(ch, facts[ch]))
-		else:
-			print ("%c is undetermined" %ch)
+	try:
+		for ch in queries:
+			stack = []
+			compute_fact(ch, stack)
+			if facts[ch] != None:
+				print ("%c is %s" %(ch, facts[ch]))
+			else:
+				print ("%c is undetermined" %ch)
+	except Exception as e:
+		print (e)
+		exit (0)

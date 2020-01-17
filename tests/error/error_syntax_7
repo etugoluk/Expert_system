@@ -1,9 +1,9 @@
 # Error Syntax 7
 
-A + B > C
+A > B
 
+=B
 ?A
-=C
 
-# Result should be
+# Expected answer:
 # Error

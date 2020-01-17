@@ -1,8 +1,8 @@
 # Error Syntax 2
 
-C - B => A
+A * B => C
 
 =B
 ?A
-# Result should be
+# Expected answer:
 # Error

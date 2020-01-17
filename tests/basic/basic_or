@@ -1,25 +1,9 @@
 # Basic OR
 
-B + C => A
-D | E => B
-B     => C
+A | B => C
+D     => A
 
-#=
-#?A
-# Result should be
-# A:False
-
-=DE
+=CD
 ?A
-# Result should be
-# A:True
-
-#=E
-#?A
-# Result should be
-# A:True
-
-#=DE
-#?A
-# Result should be
+# Expected answer:
 # A:True

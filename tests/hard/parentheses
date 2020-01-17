@@ -5,55 +5,55 @@
 
 =
 ?E
-# Result should be
+# Expected answer:
 # E:False
 
-=A
-?E
-# Result should be
+#=A
+#?E
+# Expected answer:
 # E:True
 
-=B
-?E
-# Result should be
+#=B
+#?E
+# Expected answer:
 # E:False
 
-=C
-?E
-# Result should be
+#=C
+#?E
+# Expected answer:
 # E:False
 
-=AC
-?E
-# Result should be
+#=AC
+#?E
+# Expected answer:
 # E:True
 
-=BC
-?E
-# Result should be
+#=BC
+#?E
+# Expected answer:
 # E:True
 
-=F
-?E
-# Result should be
+#=F
+#?E
+# Expected answer:
 # E:False
 
-=G
-?E
-# Result should be
+#=G
+#?E
+# Expected answer:
 # E:False
 
-=H
-?E
-# Result should be
+#=H
+#?E
+# Expected answer:
 # E:False
 
-=FH
-?E
-# Result should be
+#=FH
+#?E
+# Expected answer:
 # E:True
 
-=GH
-?E
-# Result should be
+#=GH
+#?E
+# Expected answer:
 # E:True

@@ -7,7 +7,7 @@ C => E
 A => D
 A => E
 
-=
-?C
-# Result should be
-# C:False
+=A
+?B
+# Expected answer:
+# C:True

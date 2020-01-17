@@ -3,7 +3,7 @@
 A + B <=> C | D
 =AB
 ?ABC
-# Result should be
+# Expected answer:
 # A:True
 # B:True
-# C:True
+# C:Undetermined

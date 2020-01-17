@@ -2,22 +2,12 @@
 
 B + !C => A
 
-#=D
-#A
-# Result should be
-# A:False
-
-=BC
+=C
 ?A
-# Result should be
+# Expected answer:
+# A:False
+
+#=B
+#?A
+# Expected answer:
 # A:True
-
-#=C
-#?A
-# Result should be
-# A:False
-
-#=BC
-#?A
-# Result should be
-# A:False

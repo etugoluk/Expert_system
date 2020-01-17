@@ -2,12 +2,12 @@
 
 A <=> B
 
-=B
+=
 ?A
-# Result should be
-# A:True
+# Expected answer:
+# A:False
 
 #=A
 #?B
-# Result should be
+# Expected answer:
 # B:True

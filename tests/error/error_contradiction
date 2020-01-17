@@ -1,16 +1,9 @@
 # Error contradiction
 
 A => B
-A => B
+A => !B
 
 =A
 ?B
-# Result should be
-# B:True
-
-A => !B
-
-#=A
-?B
-# Result should be
+# Expected answer:
 # Error

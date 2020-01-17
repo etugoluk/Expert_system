@@ -1,8 +1,8 @@
 # Error syntax 6
 
-( A + B => C
+(A + (B | C) => D
 
 =AB
 ?C
-# Result should be
+# Expected answer:
 # Error

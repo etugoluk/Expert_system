@@ -1,0 +1,8 @@
+# Error Syntax 8
+
+A <=> B
+
+=B
+
+# Expected answer:
+# Error

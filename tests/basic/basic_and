@@ -1,26 +1,17 @@
 # Basic AND
 
-B     => A
-D + E => B
-G + H => F
-I + J => G
-G     => H
-L + M => K
-O + P => L + N
-N     => M
+A      => !B
+B + C  => D
+A + C  => E
+E      => F
+F + G  => H
+H      => !A
+I + !H <=> A
 
-#=DEIJOP
-#?AFKP
-# Result should be
-# A:True
-# F:True
-# K:True
-# P:True
-
-=DEIJP
-?AFKP
-# Result should be
-# A:True
-# F:True
-# K:False
-# P:True
+=ACF
+?BEHI
+# Expected answer:
+# B:False
+# E:True
+# H:False
+# I:True

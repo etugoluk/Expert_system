@@ -1,9 +1,7 @@
 # Error syntax 5
 
-A =>
-B => A
+=> A
 
-=B
 ?A
-# Result should be
+# Expected answer:
 # Error

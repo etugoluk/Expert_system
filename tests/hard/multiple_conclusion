@@ -5,20 +5,20 @@ C => A
 
 =
 ?A
-# Result should be
+# Expected answer:
 # A:False
 
 #=B
 #?A
-# Result should be
+# Expected answer:
 # A:True
 
 #=C
 #?A
-# Result should be
+# Expected answer:
 # A:True
 
-#=R
+#=BC
 #?A
-# Result should be
+# Expected answer:
 # A:True

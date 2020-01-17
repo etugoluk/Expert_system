@@ -1,0 +1,9 @@
+# Error Syntax 9
+
+A => B
+
+=AB
+?C
+
+# Expected answer:
+# Error

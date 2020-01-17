@@ -6,5 +6,5 @@ N     => M
 
 =OP
 ?K
-# Result should be
+# Expected answer:
 # K:True

@@ -3,7 +3,7 @@
 A => B
 B => A
 
-=C
+=A
 ?B
-# Result should be
+# Expected answer:
 # B:True
