@@ -90,8 +90,6 @@ def compute_lhs(rule):
 	return result
 
 def compute_fact_in_rhs(fact, rule, rule_value, facts):
-	prev_fact = facts[fact]
-
 	tokens = Parser.tokenize(rule)
 	len_tokens = len(tokens)
 
@@ -141,11 +139,6 @@ def compute_fact_in_rhs(fact, rule, rule_value, facts):
 			else:
 				facts[fact] = True
 				facts[fact] = get_val(x1)
-
-	if prev_fact != None and prev_fact != facts[fact]:
-		return False
-
-	return True
 
 def get_fact_rules(fact, rules):
 	fact_rules = []
@@ -210,12 +203,11 @@ def compute_fact(ch, stack):
 		if verbose:
 			print ('So conclusion side %s is equal %d.' %(f_rule[rhs], f_rule[rhs + '_value']))
 
-		if compute_fact_in_rhs(ch, f_rule[rhs], f_rule[rhs + '_value'], facts) == False:
+		prev_fact = facts[ch]
+		compute_fact_in_rhs(ch, f_rule[rhs], f_rule[rhs + '_value'], facts)
+		if prev_fact != None and prev_fact != facts[ch]:
 			raise LogicalError('Contradiction in rules for %c' %ch)
 
-		# if facts[ch] != None:
-		# 	return
-		# else:
 		if facts[ch] == None:
 			undefined_ch_flag = 1
 		else:
@@ -229,26 +221,55 @@ def compute_fact(ch, stack):
 			print ("No appropriate rules for fact %c. Setting it to False by default." %ch)
 		facts[ch] = False
 
+def read_new_statements():
+	global queries
+	print('\nEnter new statements (=XYZ)')
+	statements = input()
+	if len(Parser.OUTPUT_REG.findall(statements)) == 0:
+		raise Parser.ParserError("incorrect statements")
+	Parser.parse_output(statements, facts)
+	print('Enter new queries (?XYZ)')
+	query = input()
+	if len(Parser.QUERY_REG.findall(query)) == 0:
+		raise Parser.ParserError("incorrect query")
+	queries = Parser.parse_query(query, facts)
+
+def reset_conclusions():
+	for key in facts:
+		facts[key] = None
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 	parser.add_argument('file', help='input file')
 	parser.add_argument('-v', '--verbose', help='verbose logs', default=False, action='store_true')
+	parser.add_argument('-i', '--interactive', help='interactive mode', default=False, action='store_true')
 	args = parser.parse_args()
 	verbose = args.verbose
+	interactive = args.interactive
 
 	file = open(args.file, 'r')
 	facts, rules_list, queries = Parser.parse_file(file)
 	file.close()
 
 	try:
-		for ch in queries:
-			stack = []
-			compute_fact(ch, stack)
-			if facts[ch] != None:
-				print ("%c is %s" %(ch, facts[ch]))
-			else:
-				print ("%c is undetermined" %ch)
+		if interactive:
+			with open(args.file, 'r') as file:
+				print('=====Initial rules====')
+				for line in file:
+					print(line, end = '')
+				print('=======================')
+		while True:
+			for ch in queries:
+				stack = []
+				compute_fact(ch, stack)
+				if facts[ch] != None:
+					print ("%c is %s" %(ch, facts[ch]))
+				else:
+					print ("%c is undetermined" %ch)
+			if not interactive:
+				break
+			reset_conclusions()
+			read_new_statements()
 	except Exception as e:
 		print (e)
 		exit (0)
